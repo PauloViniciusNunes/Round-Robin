@@ -11,7 +11,7 @@ typedef struct processos {
     int temp_disc;
     int temp_disc_rest;
 
-    int rodadas_total;
+    int rodadas;
     int rodadas_rest;
 
     int temp_espera;
