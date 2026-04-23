@@ -23,20 +23,57 @@ typedef struct processos {
 
 }processos;
 
-processos fila[MAX];
-int inicio = 0;
-int fim = 0;
+typedef struct no {
+    processos p;
+    struct no *proximo;
+}No;
 
-processos fila_disc[MAX];
-int inicio_disc = 0;
-int fim_disc = 0;
+typedef struct {
+    No *inicio;
+    No *fim;
+}Fila;
 
-void enfileirar(processos p) {
-    fila[fim] = p;
-    fim = (fim + 1) % MAX;
+Fila *criar_fila() {
+    Fila *f=(Fila *)malloc(sizeof(Fila));
+    f->inicio=f->fim=NULL;
+    return f;
 }
 
-void enfileirar_disc(processos p) {
-    fila_disc[fim_disc] = p;
-    fim_disc = (fim_disc + 1) % MAX;
+int vazio(Fila *pfila) {
+    if(pfila->inicio==NULL) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+void enfileirar(Fila *pfila, processos proc) {
+    No *novo=(No *)malloc(sizeof(No));
+    if(novo) {
+        novo->p=proc;
+        if(vazio(pfila)) { //fila vazia (inserir o primeiro elemento)
+            pfila->inicio=pfila->fim=novo;
+        } else {
+            pfila->fim->proximo=novo;
+            pfila->fim=novo;
+        }
+        novo->proximo=pfila->inicio;
+    }
+}
+
+processos desenfileirar(Fila *pfila) {
+    processos proc;
+    No *remove=NULL;
+    if(!vazio(pfila)) {
+        remove=pfila->inicio;
+        if(remove=pfila->fim) { //nó único
+            pfila->inicio=pfila->fim=NULL;
+        } else {
+            pfila->inicio=remove->proximo;
+            pfila->fim=pfila->inicio;
+        }
+        proc=remove->p;
+    }
+    free(remove);
+    return proc;
 }
