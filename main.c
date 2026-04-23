@@ -67,7 +67,7 @@ int main() {
                 p.em_disco = 0;
                 enfileirar(fila_cpu, p);
             } else {
-                enfileirar_disc(fila_disc, p);
+                enfileirar(fila_disc, p);
             }
         }
 
@@ -118,7 +118,7 @@ int main() {
 
         //int tamanho = (fim - inicio + MAX) % MAX;
 
-        while(!vazia(fila_cpu)) {
+        for(int i=0; i<tamanho(fila_cpu); i++) {
             processos p = desenfileirar(fila_cpu);
 
             p.temp_espera++;

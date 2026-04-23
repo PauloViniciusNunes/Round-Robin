@@ -31,11 +31,13 @@ typedef struct no {
 typedef struct {
     No *inicio;
     No *fim;
+    int tam;
 }Fila;
 
 Fila *criar_fila() {
     Fila *f=(Fila *)malloc(sizeof(Fila));
     f->inicio=f->fim=NULL;
+    f->tam=0;
     return f;
 }
 
@@ -45,6 +47,10 @@ int vazio(Fila *pfila) {
     } else {
         return 0;
     }
+}
+
+int tamanho(Fila *pfila) {
+    return pfila->tam;
 }
 
 void enfileirar(Fila *pfila, processos proc) {
@@ -58,6 +64,7 @@ void enfileirar(Fila *pfila, processos proc) {
             pfila->fim=novo;
         }
         novo->proximo=pfila->inicio;
+        pfila->tam++;
     }
 }
 
@@ -66,13 +73,14 @@ processos desenfileirar(Fila *pfila) {
     No *remove=NULL;
     if(!vazio(pfila)) {
         remove=pfila->inicio;
-        if(remove=pfila->fim) { //nó único
+        if(remove==pfila->fim) { //nó único
             pfila->inicio=pfila->fim=NULL;
         } else {
             pfila->inicio=remove->proximo;
             pfila->fim=pfila->inicio;
         }
         proc=remove->p;
+        pfila->tam--;
     }
     free(remove);
     return proc;
