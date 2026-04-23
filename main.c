@@ -3,8 +3,9 @@
 
 int main() {
     processos processo[MAX];
-    Fila *fila_cpu=criar_fila();
-    Fila *fila_disc=criar_fila();
+
+    Fila *fila_cpu = criar_fila();
+    Fila *fila_disc = criar_fila();
 
     int N;
     int quantum;
@@ -56,9 +57,9 @@ int main() {
     while (tempo < tempo_total) {
         printf("\nTempo %d\n", tempo);
 
-        //int tamanho_io = (fim_disc - inicio_disc + MAX) % MAX;
+        int tamanho_io = tamanho(fila_disc);
 
-        while(!vazio(fila_disc)) {
+        for (int i = 0; i < tamanho_io; i++) {
             processos p = desenfileirar(fila_disc);
 
             p.temp_disc_rest--;
@@ -116,9 +117,9 @@ int main() {
             tempo++;
         }
 
-        //int tamanho = (fim - inicio + MAX) % MAX;
+        int tam = tamanho(fila_cpu);
 
-        for(int i=0; i<tamanho(fila_cpu); i++) {
+        for (int i = 0; i < tam; i++) {
             processos p = desenfileirar(fila_cpu);
 
             p.temp_espera++;
@@ -148,7 +149,7 @@ int main() {
     printf("\nUso da CPU: %.2f%%\n", uso_cpu);
     printf("Processos finalizados: %d\n", processo_finalizados);
 
-    printf("Tempo medio de espera: %.2f\n",(float)soma_espera / N);
+    printf("Tempo medio de espera: %.2f\n", (float)soma_espera / N);
 
     return 0;
 }

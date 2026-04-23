@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #define MAX 100
 
-typedef struct processos {
+typedef struct processos
+{
     int id;
 
     int temp_CPU;
@@ -21,65 +22,83 @@ typedef struct processos {
     int em_disco;
     int finalizado;
 
-}processos;
+} processos;
 
-typedef struct no {
+typedef struct no
+{
     processos p;
     struct no *proximo;
-}No;
+} No;
 
-typedef struct {
+typedef struct
+{
     No *inicio;
     No *fim;
     int tam;
-}Fila;
+} Fila;
 
-Fila *criar_fila() {
-    Fila *f=(Fila *)malloc(sizeof(Fila));
-    f->inicio=f->fim=NULL;
-    f->tam=0;
+Fila *criar_fila()
+{
+    Fila *f = (Fila *)malloc(sizeof(Fila));
+    f->inicio = f->fim = NULL;
+    f->tam = 0;
     return f;
 }
 
-int vazio(Fila *pfila) {
-    if(pfila->inicio==NULL) {
+int vazio(Fila *pfila)
+{
+    if (pfila->inicio == NULL)
+    {
         return 1;
-    } else {
+    }
+    else
+    {
         return 0;
     }
 }
 
-int tamanho(Fila *pfila) {
+int tamanho(Fila *pfila)
+{
     return pfila->tam;
 }
 
-void enfileirar(Fila *pfila, processos proc) {
-    No *novo=(No *)malloc(sizeof(No));
-    if(novo) {
-        novo->p=proc;
-        if(vazio(pfila)) { //fila vazia (inserir o primeiro elemento)
-            pfila->inicio=pfila->fim=novo;
-        } else {
-            pfila->fim->proximo=novo;
-            pfila->fim=novo;
+void enfileirar(Fila *pfila, processos proc)
+{
+    No *novo = (No *)malloc(sizeof(No));
+    if (novo)
+    {
+        novo->p = proc;
+        if (vazio(pfila))
+        { // fila vazia (inserir o primeiro elemento)
+            pfila->inicio = pfila->fim = novo;
         }
-        novo->proximo=pfila->inicio;
+        else
+        {
+            pfila->fim->proximo = novo;
+            pfila->fim = novo;
+        }
+        novo->proximo = pfila->inicio;
         pfila->tam++;
     }
 }
 
-processos desenfileirar(Fila *pfila) {
+processos desenfileirar(Fila *pfila)
+{
     processos proc;
-    No *remove=NULL;
-    if(!vazio(pfila)) {
-        remove=pfila->inicio;
-        if(remove==pfila->fim) { //nó único
-            pfila->inicio=pfila->fim=NULL;
-        } else {
-            pfila->inicio=remove->proximo;
-            pfila->fim=pfila->inicio;
+    No *remove = NULL;
+    if (!vazio(pfila))
+    {
+        remove = pfila->inicio;
+        if (remove == pfila->fim)
+        { // nó único
+            pfila->inicio = pfila->fim = NULL;
         }
-        proc=remove->p;
+        else
+        {
+            pfila->inicio = remove->proximo;
+            pfila->fim->proximo = pfila->inicio;
+        }
+        proc = remove->p;
         pfila->tam--;
     }
     free(remove);
