@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "declaracoes.h"
 #define MAX 100
 
 typedef struct processos
