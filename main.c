@@ -7,25 +7,57 @@
 
 // ---------------- DESENHO ----------------
 
-void desenhar_fila(Fila *fila, int y, ALLEGRO_FONT *font, char *titulo) {
-    int x = 50;
-
-    al_draw_text(font, al_map_rgb(255,255,255), x, y - 30, 0, titulo);
-
+void desenhar_fila(Fila *fila, int y, ALLEGRO_FONT *font, char *titulo, int largura_tela) {
     int tam = tamanho(fila);
+
+    int largura_bloco = 60;
+    int altura_bloco = 40;
+    int espacamento = 10;
+
+    int largura_total = tam * (largura_bloco + espacamento);
+
+    int x_inicial = (largura_tela - largura_total) / 2;
+
+    int padding = 20;
+
+    int box_x1 = x_inicial - padding;
+    int box_y1 = y - padding;
+    int box_x2 = x_inicial + largura_total + padding;
+    int box_y2 = y + altura_bloco + padding;
+
+    al_draw_rectangle(box_x1, box_y1, box_x2, box_y2, al_map_rgb(255,255,255), 2);
+
+    al_draw_text(font, al_map_rgb(255,255,255),
+                 largura_tela / 2, box_y1 - 25,
+                 ALLEGRO_ALIGN_CENTER, titulo);
+
+    int x = x_inicial;
+
+    if (tam == 0) {
+        al_draw_text(font, al_map_rgb(180,180,180),
+                     largura_tela/2, y + 10,
+                     ALLEGRO_ALIGN_CENTER, "Vazia");
+    }
 
     for (int i = 0; i < tam; i++) {
         processos p = desenfileirar(fila);
 
-        al_draw_filled_rectangle(x, y, x+60, y+40, al_map_rgb(100,100,255));
+        al_draw_filled_rectangle(x, y, x + largura_bloco, y + altura_bloco,
+                                 al_map_rgb(100,100,255));
+
+        al_draw_rectangle(x, y, x + largura_bloco, y + altura_bloco,
+                          al_map_rgb(255,255,255), 1);
 
         char txt[10];
         sprintf(txt, "P%d", p.id);
-        al_draw_text(font, al_map_rgb(255,255,255), x+10, y+10, 0, txt);
+
+        al_draw_text(font, al_map_rgb(255,255,255),
+                     x + largura_bloco/2, y + 10,
+                     ALLEGRO_ALIGN_CENTER, txt);
 
         enfileirar(fila, p);
 
-        x += 70;
+        x += largura_bloco + espacamento;
     }
 }
 
@@ -87,9 +119,12 @@ int main() {
     al_init_primitives_addon();
     al_init_font_addon();
 
-    ALLEGRO_DISPLAY *display = al_create_display(1200, 800);
+    int largura_tela = 800;
+    int altura_tela = 600;
+
+    ALLEGRO_DISPLAY *display = al_create_display(largura_tela, altura_tela);
     ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
-    ALLEGRO_TIMER *timer = al_create_timer(0.5); // velocidade da simulação
+    ALLEGRO_TIMER *timer = al_create_timer(0.5);
 
     al_register_event_source(queue, al_get_display_event_source(display));
     al_register_event_source(queue, al_get_timer_event_source(timer));
@@ -104,8 +139,6 @@ int main() {
     int executando = 0;
     int quantum_rest = quantum;
 
-    // -------- LOOP --------
-
     while (rodando) {
 
         ALLEGRO_EVENT ev;
@@ -113,7 +146,6 @@ int main() {
 
         if (ev.type == ALLEGRO_EVENT_TIMER) {
 
-            // ----- DISCO -----
             int tamanho_io = tamanho(fila_disc);
 
             for (int i = 0; i < tamanho_io; i++) {
@@ -129,7 +161,6 @@ int main() {
                 }
             }
 
-            // ----- CPU -----
             if (!executando && !vazio(fila_cpu)) {
                 atual = desenfileirar(fila_cpu);
                 executando = 1;
@@ -166,7 +197,6 @@ int main() {
                 }
             }
 
-            // ----- ESPERA -----
             int tam = tamanho(fila_cpu);
             for (int i = 0; i < tam; i++) {
                 processos p = desenfileirar(fila_cpu);
@@ -176,22 +206,19 @@ int main() {
 
             tempo++;
 
-            // ----- RENDER -----
             al_clear_to_color(al_map_rgb(0,0,0));
 
-            desenhar_fila(fila_cpu, 150, font, "CPU");
-            desenhar_fila(fila_disc, 300, font, "DISCO");
+            desenhar_fila(fila_cpu, 200, font, "CPU", largura_tela);
+            desenhar_fila(fila_disc, 400, font, "DISCO", largura_tela);
 
-            // processo atual
             if (executando) {
-                al_draw_filled_rectangle(350, 50, 450, 100, al_map_rgb(255,100,100));
+                al_draw_filled_rectangle(550, 50, 650, 100, al_map_rgb(255,100,100));
 
                 char txt[20];
                 sprintf(txt, "P%d", atual.id);
-                al_draw_text(font, al_map_rgb(255,255,255), 370, 65, 0, txt);
+                al_draw_text(font, al_map_rgb(255,255,255), 600, 65, ALLEGRO_ALIGN_CENTER, txt);
             }
 
-            // tempo
             char tempo_txt[50];
             sprintf(tempo_txt, "Tempo: %d", tempo);
             al_draw_text(font, al_map_rgb(255,255,255), 10, 10, 0, tempo_txt);
