@@ -4,6 +4,9 @@
 int main() {
     processos processo[MAX];
 
+    Fila *fila_cpu = criar_fila();
+    Fila *fila_disc = criar_fila();
+
     int N;
     int quantum;
     int tempo_total;
@@ -40,7 +43,7 @@ int main() {
         processo[i].em_disco = 0;
         processo[i].finalizado = 0;
 
-        enfileirar(processo[i]);
+        enfileirar(fila_cpu, processo[i]);
     }
 
     printf("\nQuantum: ");
@@ -54,23 +57,23 @@ int main() {
     while (tempo < tempo_total) {
         printf("\nTempo %d\n", tempo);
 
-        int tamanho_io = (fim_disc - inicio_disc + MAX) % MAX;
+        int tamanho_io = tamanho(fila_disc);
 
         for (int i = 0; i < tamanho_io; i++) {
-            processos p = desenfileirar_disc();
+            processos p = desenfileirar(fila_disc);
 
             p.temp_disc_rest--;
 
             if (p.temp_disc_rest <= 0) {
                 p.em_disco = 0;
-                enfileirar(p);
+                enfileirar(fila_cpu, p);
             } else {
-                enfileirar_disc(p);
+                enfileirar(fila_disc, p);
             }
         }
 
-        if (!vazio()) {
-            processos p = desenfileirar();
+        if (!vazio(fila_cpu)) {
+            processos p = desenfileirar(fila_cpu);
 
             if (!p.respondeu) {
                 p.temp_resposta = tempo;
@@ -102,26 +105,26 @@ int main() {
                     p.temp_disc_rest = p.temp_disc;
                     p.em_disco = 1;
 
-                    enfileirar_disc(p);
+                    enfileirar(fila_disc, p);
 
                     printf("Processo %d foi para E/S\n", p.id);
                 }
             } else {
-                enfileirar(p);
+                enfileirar(fila_cpu, p);
             }
         } else {
             printf("CPU ociosa\n");
             tempo++;
         }
 
-        int tamanho = (fim - inicio + MAX) % MAX;
+        int tam = tamanho(fila_cpu);
 
-        for (int i = 0; i < tamanho; i++) {
-            processos p = desenfileirar();
+        for (int i = 0; i < tam; i++) {
+            processos p = desenfileirar(fila_cpu);
 
             p.temp_espera++;
 
-            enfileirar(p);
+            enfileirar(fila_cpu, p);
         }
 
         if (processo_finalizados == N)
@@ -146,10 +149,7 @@ int main() {
     printf("\nUso da CPU: %.2f%%\n", uso_cpu);
     printf("Processos finalizados: %d\n", processo_finalizados);
 
-    printf(
-        "Tempo medio de espera: %.2f\n",
-        (float)soma_espera / N
-    );
+    printf("Tempo medio de espera: %.2f\n", (float)soma_espera / N);
 
     return 0;
 }

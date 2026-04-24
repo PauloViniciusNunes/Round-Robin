@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #define MAX 100
 
-typedef struct processos {
+typedef struct processos
+{
     int id;
 
     int temp_CPU;
@@ -21,38 +22,85 @@ typedef struct processos {
     int em_disco;
     int finalizado;
 
-}processos;
+} processos;
 
-processos fila[MAX];
-int inicio = 0;
-int fim = 0;
+typedef struct no
+{
+    processos p;
+    struct no *proximo;
+} No;
 
-processos fila_disc[MAX];
-int inicio_disc = 0;
-int fim_disc = 0;
+typedef struct
+{
+    No *inicio;
+    No *fim;
+    int tam;
+} Fila;
 
-void enfileirar(processos p) {
-    fila[fim] = p;
-    fim = (fim + 1) % MAX;
-}
-processos desenfileirar () {
-    processos p = fila[inicio];
-    inicio = (inicio + 1) % MAX;
-    return(p);
-}
-int vazio() {
-    return(inicio == fim);
+Fila *criar_fila()
+{
+    Fila *f = (Fila *)malloc(sizeof(Fila));
+    f->inicio = f->fim = NULL;
+    f->tam = 0;
+    return f;
 }
 
-void enfileirar_disc(processos p) {
-    fila_disc[fim_disc] = p;
-    fim_disc = (fim_disc + 1) % MAX;
+int vazio(Fila *pfila)
+{
+    if (pfila->inicio == NULL)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
 }
-processos desenfileirar_disc() {
-    processos p = fila_disc[inicio_disc];
-    inicio_disc = (inicio_disc + 1) % MAX;
-    return(p);
+
+int tamanho(Fila *pfila)
+{
+    return pfila->tam;
 }
-int vazio_disc() {
-    return(inicio_disc == fim_disc);
+
+void enfileirar(Fila *pfila, processos proc)
+{
+    No *novo = (No *)malloc(sizeof(No));
+    if (novo)
+    {
+        novo->p = proc;
+        if (vazio(pfila))
+        { // fila vazia (inserir o primeiro elemento)
+            pfila->inicio = pfila->fim = novo;
+        }
+        else
+        {
+            pfila->fim->proximo = novo;
+            pfila->fim = novo;
+        }
+        novo->proximo = pfila->inicio;
+        pfila->tam++;
+    }
+}
+
+processos desenfileirar(Fila *pfila)
+{
+    processos proc;
+    No *remove = NULL;
+    if (!vazio(pfila))
+    {
+        remove = pfila->inicio;
+        if (remove == pfila->fim)
+        { // nó único
+            pfila->inicio = pfila->fim = NULL;
+        }
+        else
+        {
+            pfila->inicio = remove->proximo;
+            pfila->fim->proximo = pfila->inicio;
+        }
+        proc = remove->p;
+        pfila->tam--;
+    }
+    free(remove);
+    return proc;
 }
